@@ -10,6 +10,7 @@ from PyQt5.QtCore import Qt
 from task1 import create_annotation
 from task2 import create_dataset2, create_annotation2
 from task3 import create_dataset3, create_annotation3
+from task5 import Iterator
 
 
 class Window(QMainWindow):
@@ -26,6 +27,7 @@ class Window(QMainWindow):
         self.createActions()
         self.createMenuBar()
         self.createToolBar()
+        self.initIterators()
 
 
     def initUI(self):
@@ -33,7 +35,9 @@ class Window(QMainWindow):
         self.folderpath = QFileDialog.getExistingDirectory(self, 'Select Folder')
 
         self.resize(500, 450)
+
         self.center()
+
         self.setWindowTitle('Brown&Polar')
         self.setWindowIcon(QIcon('img/main_icon.png'))
         self.centralWidget = QWidget()
@@ -45,8 +49,11 @@ class Window(QMainWindow):
         pixmap = QPixmap('img/both.jpg')
         
         self.lbl = QLabel(self)
-        #lbl.setPixmap(pixmap)
-        self.lbl.setText(str(self.folderpath))
+        
+        self.lbl.setPixmap(pixmap)
+
+        self.lbl.setAlignment(Qt.AlignCenter)
+        
 
         hbox = QHBoxLayout()
         hbox.addSpacing(1)
@@ -59,19 +66,58 @@ class Window(QMainWindow):
         vbox.addLayout(hbox)
         
         self.centralWidget.setLayout(vbox)
-        '''
+        
         brown_btn.clicked.connect(self.nextBrown)
 
         polar_btn.clicked.connect(self.nextPolar)
+        
+        self.showMaximized()
+
+    def initIterators(self):
+        self.brownbears = Iterator('brownbear', 'dataset')
+        self.polarbears = Iterator('polarbear', 'dataset')
+
+    def nextBrown(self):
+
+        lbl_size = self.lbl.size()
+
+        img = QPixmap(next(self.brownbears)).scaled(lbl_size, aspectRatioMode=Qt.KeepAspectRatio)
+
         '''
-        self.show()
+        widget_rect = self.lbl.frameGeometry()
+        main_window_rect = self.frameGeometry().center()
+        widget_rect.moveCenter(main_window_rect)
+
+        self.lbl.move(widget_rect.center())
+        '''
+        self.lbl.setPixmap(img)
+
+        self.lbl.setAlignment(Qt.AlignCenter)
+        
+
+    def nextPolar(self):
+        lbl_size = self.lbl.size()
+
+        img = QPixmap(next(self.polarbears)).scaled(lbl_size, aspectRatioMode = Qt.KeepAspectRatio)
+
+        '''
+        widget_rect = self.lbl.frameGeometry()
+        main_window_rect = self.frameGeometry().center()
+        widget_rect.moveCenter(main_window_rect)
+
+        self.lbl.move(widget_rect.center())
+        '''
+        
+        self.lbl.setPixmap(img)
+
+        self.lbl.setAlignment(Qt.AlignCenter)
 
     def center(self):
 
         widget_rect = self.frameGeometry()
         pc_rect = QDesktopWidget().availableGeometry().center()
         widget_rect.moveCenter(pc_rect)
-        self.move(widget_rect.topLeft())
+        self.move(widget_rect.center())
     
     def createMenuBar(self):
         menuBar = self.menuBar()
@@ -83,10 +129,7 @@ class Window(QMainWindow):
 
         annotMenu = menuBar.addMenu('&Annotation')
         annotMenu.addAction(self.createAnnotAction)
-        '''
-        annotMenu.addAction(self.createAnnotAction2)
-        annotMenu.addAction(self.createAnnotAction3)
-        '''
+     
         dataMenu = menuBar.addMenu('&Dataset')
         dataMenu.addAction(self.createData2Action)
         if(self.dataset2_is_created is True):
@@ -135,7 +178,6 @@ class Window(QMainWindow):
         
         if reply == QMessageBox.Yes:
             self.folderpath = self.folderpath = QFileDialog.getExistingDirectory(self, 'Select Folder')
-            self.lbl.setText(str(self.folderpath))
         else:
             pass
 

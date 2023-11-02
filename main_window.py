@@ -1,11 +1,9 @@
 import sys
-import os
+sys.path.append(r'C:\Users\WWolk\Desktop\DataProcessing')
 
-from PyQt5.QtWidgets import (QApplication, QWidget, QDesktopWidget, QPushButton,
-                QHBoxLayout, QVBoxLayout, QAction, QMainWindow, QToolBar,
-                QMessageBox, QLineEdit, qApp, QLabel, QFileDialog)
+from PyQt5.QtCore import Qt, QBasicTimer
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
 
 from task1 import create_annotation
 from task2 import create_dataset2, create_annotation2
@@ -19,25 +17,18 @@ class Window(QMainWindow):
         super().__init__()
 
         self.initUI()
-
-        if os.path.isdir('dataset2'):
-            self.dataset2_is_created = True
-        else:
-            self.dataset2_is_created= False
+        self.initIterators()
         self.createActions()
         self.createMenuBar()
         self.createToolBar()
-        self.initIterators()
-
 
     def initUI(self):
 
-        self.folderpath = QFileDialog.getExistingDirectory(self, 'Select Folder')
+        self.folderpath = QFileDialog.getExistingDirectory(
+            self, 'Select Folder')
 
         self.resize(500, 450)
-
         self.center()
-
         self.setWindowTitle('Brown&Polar')
         self.setWindowIcon(QIcon('img/main_icon.png'))
         self.centralWidget = QWidget()
@@ -47,13 +38,9 @@ class Window(QMainWindow):
         polar_btn = QPushButton('Next Polar', self)
 
         pixmap = QPixmap('img/both.jpg')
-        
         self.lbl = QLabel(self)
-        
         self.lbl.setPixmap(pixmap)
-
         self.lbl.setAlignment(Qt.AlignCenter)
-        
 
         hbox = QHBoxLayout()
         hbox.addSpacing(1)
@@ -64,53 +51,48 @@ class Window(QMainWindow):
         vbox.addSpacing(1)
         vbox.addWidget(self.lbl)
         vbox.addLayout(hbox)
-        
-        self.centralWidget.setLayout(vbox)
-        
-        brown_btn.clicked.connect(self.nextBrown)
 
+        self.centralWidget.setLayout(vbox)
+
+        brown_btn.clicked.connect(self.nextBrown)
         polar_btn.clicked.connect(self.nextPolar)
-        
+
         self.showMaximized()
 
     def initIterators(self):
+
         self.brownbears = Iterator('brownbear', 'dataset')
         self.polarbears = Iterator('polarbear', 'dataset')
 
     def nextBrown(self):
 
         lbl_size = self.lbl.size()
-
-        img = QPixmap(next(self.brownbears)).scaled(lbl_size, aspectRatioMode=Qt.KeepAspectRatio)
-
-        '''
-        widget_rect = self.lbl.frameGeometry()
-        main_window_rect = self.frameGeometry().center()
-        widget_rect.moveCenter(main_window_rect)
-
-        self.lbl.move(widget_rect.center())
-        '''
-        self.lbl.setPixmap(img)
-
-        self.lbl.setAlignment(Qt.AlignCenter)
-        
+        next_image = next(self.brownbears)
+        if next_image != None:
+            img = QPixmap(next_image).scaled(
+                lbl_size, aspectRatioMode=Qt.KeepAspectRatio)
+            self.lbl.setPixmap(img)
+            self.lbl.setAlignment(Qt.AlignCenter)
+        else:
+            end_image = QPixmap(
+                'img/no_photo.jpg').scaled(lbl_size, aspectRatioMode=Qt.KeepAspectRatio)
+            self.lbl.setPixmap(end_image)
+            self.lbl.setAlignment(Qt.AlignCenter)
 
     def nextPolar(self):
+
         lbl_size = self.lbl.size()
-
-        img = QPixmap(next(self.polarbears)).scaled(lbl_size, aspectRatioMode = Qt.KeepAspectRatio)
-
-        '''
-        widget_rect = self.lbl.frameGeometry()
-        main_window_rect = self.frameGeometry().center()
-        widget_rect.moveCenter(main_window_rect)
-
-        self.lbl.move(widget_rect.center())
-        '''
-        
-        self.lbl.setPixmap(img)
-
-        self.lbl.setAlignment(Qt.AlignCenter)
+        next_image = next(self.polarbears)
+        if next_image != None:
+            img = QPixmap(next_image).scaled(
+                lbl_size, aspectRatioMode=Qt.KeepAspectRatio)
+            self.lbl.setPixmap(img)
+            self.lbl.setAlignment(Qt.AlignCenter)
+        else:
+            end_image = QPixmap(
+                'img/no_photo.jpg').scaled(lbl_size, aspectRatioMode=Qt.KeepAspectRatio)
+            self.lbl.setPixmap(end_image)
+            self.lbl.setAlignment(Qt.AlignCenter)
 
     def center(self):
 
@@ -118,46 +100,51 @@ class Window(QMainWindow):
         pc_rect = QDesktopWidget().availableGeometry().center()
         widget_rect.moveCenter(pc_rect)
         self.move(widget_rect.center())
-    
+
     def createMenuBar(self):
+
         menuBar = self.menuBar()
 
-        fileMenu = menuBar.addMenu('&File')
+        self.fileMenu = menuBar.addMenu('&File')
+        self.fileMenu.addAction(self.exitAction)
+        self.fileMenu.addAction(self.changeAction)
 
-        fileMenu.addAction(self.exitAction)
-        fileMenu.addAction(self.changeAction)
+        self.annotMenu = menuBar.addMenu('&Annotation')
+        self.annotMenu.addAction(self.createAnnotAction)
 
-        annotMenu = menuBar.addMenu('&Annotation')
-        annotMenu.addAction(self.createAnnotAction)
-     
-        dataMenu = menuBar.addMenu('&Dataset')
-        dataMenu.addAction(self.createData2Action)
-        if(self.dataset2_is_created is True):
-            dataMenu.addAction(self.createData3Action)
+        self.dataMenu = menuBar.addMenu('&Dataset')
+        self.dataMenu.addAction(self.createData2Action)
 
-      
     def createToolBar(self):
+
         fileToolBar = self.addToolBar('File')
         fileToolBar.addAction(self.exitAction)
-    
+
+        annotToolBar = self.addToolBar('Annotation')
+        annotToolBar.addAction(self.createAnnotAction)
+
     def createActions(self):
 
-        self.exitAction = QAction(QIcon('img/exit.png'), '&Exit', self)
+        self.exitAction = QAction(QIcon('img/exit.png'), '&Exit')
         self.exitAction.triggered.connect(qApp.quit)
 
-        self.changeAction = QAction(QIcon('img/change.png'), '&Change directory', self)
-        self.changeAction.triggered.connect(self.changeDir)
+        self.changeAction = QAction(QIcon('img/change.png'), '&Change dataset')
+        self.changeAction.triggered.connect(self.changeDataset)
 
-        self.createAnnotAction = QAction(QIcon('img/csv.png'), '&Create annotation for current dataset', self)
+        self.createAnnotAction = QAction(
+            QIcon('img/csv.png'), '&Create annotation for current dataset')
         self.createAnnotAction.triggered.connect(self.createAnnotation)
-    
-        self.createData2Action = QAction(QIcon('img/new_dataset.png'), '&Create dataset2', self)
+
+        self.createData2Action = QAction(
+            QIcon('img/new_dataset.png'), '&Create dataset2')
         self.createData2Action.triggered.connect(self.createDataset2)
 
-        self.createData3Action = QAction(QIcon('img/new_dataset.png'), '&Create dataset3', self)
+        self.createData3Action = QAction(
+            QIcon('img/new_dataset.png'), '&Create dataset3')
         self.createData3Action.triggered.connect(self.createDataset3)
-        
+
     def createAnnotation(self):
+
         if 'dataset2' in str(self.folderpath):
             create_annotation2()
         elif 'dataset3' in str(self.folderpath):
@@ -166,35 +153,41 @@ class Window(QMainWindow):
             create_annotation()
 
     def createDataset2(self):
-        self.dataset2_is_created = True
+
         create_dataset2()
-        
+        self.dataMenu.addAction(self.createData3Action)
+
     def createDataset3(self):
+
         create_dataset3()
 
-    def changeDir(self):
-        reply = QMessageBox.question(self, 'Warning', f'Are you sure to change current directory?\nCurrent dir: {str(self.folderpath)}',
-            QMessageBox.Yes | QMessageBox.No)
-        
+    def changeDataset(self):
+
+        reply = QMessageBox.question(self, 'Warning', f'Are you sure you want to change current dataset?\nCurrent dataset: {str(self.folderpath)}',
+                                     QMessageBox.Yes | QMessageBox.No)
+
         if reply == QMessageBox.Yes:
-            self.folderpath = self.folderpath = QFileDialog.getExistingDirectory(self, 'Select Folder')
+            self.folderpath = self.folderpath = QFileDialog.getExistingDirectory(
+                self, 'Select Folder')
         else:
             pass
 
     def closeEvent(self, event):
 
         reply = QMessageBox.question(self, 'Warning', 'Are you sure to quit?',
-            QMessageBox.Yes | QMessageBox.No)
-        
+                                     QMessageBox.Yes | QMessageBox.No)
+
         if reply == QMessageBox.Yes:
             event.accept()
         else:
             event.ignore()
 
 
-
-if __name__ == '__main__':
-
+def main() -> None:
     app = QApplication(sys.argv)
     window = Window()
     sys.exit(app.exec_())
+
+
+if __name__ == '__main__':
+    main()

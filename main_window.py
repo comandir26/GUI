@@ -1,7 +1,6 @@
 import sys
-sys.path.append(r'C:\Users\WWolk\Desktop\DataProcessing')
 
-from PyQt5.QtCore import Qt, QBasicTimer
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import *
 
@@ -12,8 +11,18 @@ from task5 import Iterator
 
 
 class Window(QMainWindow):
-    def __init__(self):
+    def __init__(self) -> None:
+        """
+        Конструктор
 
+        Данная функция вызывает все необходимые методы для создания окна
+        Parameters
+        ----------
+        self
+        Returns
+        -------
+        None
+        """
         super().__init__()
 
         self.initUI()
@@ -22,12 +31,18 @@ class Window(QMainWindow):
         self.createMenuBar()
         self.createToolBar()
 
-    def initUI(self):
+    def initUI(self) -> None:
+        """
+        Инициализация главного окна и кнопок
 
-        self.folderpath = QFileDialog.getExistingDirectory(
-            self, 'Select Folder')
-
-        self.resize(500, 450)
+        Данная функция создает главный виджет и размещает кнопки по макету
+        Parameters
+        ----------
+        self
+        Returns
+        -------
+        None
+        """
         self.center()
         self.setWindowTitle('Brown&Polar')
         self.setWindowIcon(QIcon('img/main_icon.png'))
@@ -57,15 +72,37 @@ class Window(QMainWindow):
         brown_btn.clicked.connect(self.nextBrown)
         polar_btn.clicked.connect(self.nextPolar)
 
+        self.folderpath = ' '
+
         self.showMaximized()
 
-    def initIterators(self):
+    def initIterators(self) -> None:
+        """
+        Создание итераторов
 
+        Данная функция создает два объекта-итератора для показа изображений
+        Parameters
+        ----------
+        self
+        Returns
+        -------
+        None
+        """
         self.brownbears = Iterator('brownbear', 'dataset')
         self.polarbears = Iterator('polarbear', 'dataset')
 
-    def nextBrown(self):
+    def nextBrown(self) -> None:
+        """
+        Пока следующего экземпляра brownbear
 
+        Данная функция получает следующий экземпляр(путь к нему) изображения и размещает на главном окне
+        Parameters
+        ----------
+        self
+        Returns
+        -------
+        None
+        """
         lbl_size = self.lbl.size()
         next_image = next(self.brownbears)
         if next_image != None:
@@ -74,13 +111,21 @@ class Window(QMainWindow):
             self.lbl.setPixmap(img)
             self.lbl.setAlignment(Qt.AlignCenter)
         else:
-            end_image = QPixmap(
-                'img/no_photo.jpg').scaled(lbl_size, aspectRatioMode=Qt.KeepAspectRatio)
-            self.lbl.setPixmap(end_image)
-            self.lbl.setAlignment(Qt.AlignCenter)
+            self.initIterators()
+            self.nextBrown()
 
-    def nextPolar(self):
+    def nextPolar(self) -> None:
+        """
+        Пока следующего экземпляра polarbear
 
+        Данная функция получает следующий экземпляр(путь к нему) изображения и размещает на главном окне
+        Parameters
+        ----------
+        self
+        Returns
+        -------
+        None
+        """
         lbl_size = self.lbl.size()
         next_image = next(self.polarbears)
         if next_image != None:
@@ -89,20 +134,37 @@ class Window(QMainWindow):
             self.lbl.setPixmap(img)
             self.lbl.setAlignment(Qt.AlignCenter)
         else:
-            end_image = QPixmap(
-                'img/no_photo.jpg').scaled(lbl_size, aspectRatioMode=Qt.KeepAspectRatio)
-            self.lbl.setPixmap(end_image)
-            self.lbl.setAlignment(Qt.AlignCenter)
+            self.initIterators()
+            self.nextPolar()
 
-    def center(self):
+    def center(self) -> None:
+        """
+        Центрирование главного окна относительно экрана
 
+        Parameters
+        ----------
+        self
+        Returns
+        -------
+        None
+        """
         widget_rect = self.frameGeometry()
         pc_rect = QDesktopWidget().availableGeometry().center()
         widget_rect.moveCenter(pc_rect)
         self.move(widget_rect.center())
 
-    def createMenuBar(self):
+    def createMenuBar(self) -> None:
+        """
+        Создание строки меню
 
+        Данная функция создает меню, подменю и добавляет к ним действия
+        Parameters
+        ----------
+        self
+        Returns
+        -------
+        None
+        """
         menuBar = self.menuBar()
 
         self.fileMenu = menuBar.addMenu('&File')
@@ -115,16 +177,36 @@ class Window(QMainWindow):
         self.dataMenu = menuBar.addMenu('&Dataset')
         self.dataMenu.addAction(self.createData2Action)
 
-    def createToolBar(self):
+    def createToolBar(self) -> None:
+        """
+        Создание тулбара
 
+        Данная функция создает тулбар и связывает с ним действия
+        Parameters
+        ----------
+        self
+        Returns
+        -------
+        None
+        """
         fileToolBar = self.addToolBar('File')
         fileToolBar.addAction(self.exitAction)
 
         annotToolBar = self.addToolBar('Annotation')
         annotToolBar.addAction(self.createAnnotAction)
 
-    def createActions(self):
+    def createActions(self) -> None:
+        """
+        Создание действий, связанных с меню и тулбаром
 
+        Данная функция создает действия и связывает их с методами класса или другими функциями
+        Parameters
+        ----------
+        self
+        Returns
+        -------
+        None
+        """
         self.exitAction = QAction(QIcon('img/exit.png'), '&Exit')
         self.exitAction.triggered.connect(qApp.quit)
 
@@ -143,8 +225,18 @@ class Window(QMainWindow):
             QIcon('img/new_dataset.png'), '&Create dataset3')
         self.createData3Action.triggered.connect(self.createDataset3)
 
-    def createAnnotation(self):
+    def createAnnotation(self) -> None:
+        """
+        Создание аннотации
 
+        Данная функция создает аннотацию для текущего датасета
+        Parameters
+        ----------
+        self
+        Returns
+        -------
+        None
+        """
         if 'dataset2' in str(self.folderpath):
             create_annotation2()
         elif 'dataset3' in str(self.folderpath):
@@ -152,17 +244,47 @@ class Window(QMainWindow):
         elif 'dataset' in str(self.folderpath):
             create_annotation()
 
-    def createDataset2(self):
+    def createDataset2(self) -> None:
+        """
+        Создание датасета №2
 
+        Данная функция создает новый датасет, соединяя имя класса с порядковым номером
+        Parameters
+        ----------
+        self
+        Returns
+        -------
+        None
+        """
         create_dataset2()
         self.dataMenu.addAction(self.createData3Action)
 
-    def createDataset3(self):
+    def createDataset3(self) -> None:
+        """
+        Создание датасета №3
 
+        Данная функция создает новый датасет с рандомными числами
+        Parameters
+        ----------
+        self
+        Returns
+        -------
+        None
+        """
         create_dataset3()
 
-    def changeDataset(self):
+    def changeDataset(self) -> None:
+        """
+        Изменение датасета
 
+        Данная функция изменяет текущий датасет
+        Parameters
+        ----------
+        self
+        Returns
+        -------
+        None
+        """
         reply = QMessageBox.question(self, 'Warning', f'Are you sure you want to change current dataset?\nCurrent dataset: {str(self.folderpath)}',
                                      QMessageBox.Yes | QMessageBox.No)
 
@@ -172,11 +294,21 @@ class Window(QMainWindow):
         else:
             pass
 
-    def closeEvent(self, event):
+    def closeEvent(self, event) -> None:
+        """
+        Функция позволяет спросить пользователя, уверен ли он в том, что хочет закрыть окно
 
+        Parameters
+        ----------
+        self
+        event: 
+            Событие, возникающе после нажатия на закрытие приложения
+        Returns
+        -------
+        None
+        """
         reply = QMessageBox.question(self, 'Warning', 'Are you sure to quit?',
                                      QMessageBox.Yes | QMessageBox.No)
-
         if reply == QMessageBox.Yes:
             event.accept()
         else:

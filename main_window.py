@@ -1,6 +1,6 @@
 import sys
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QEvent
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import *
 
@@ -294,7 +294,7 @@ class Window(QMainWindow):
         else:
             pass
 
-    def closeEvent(self, event) -> None:
+    def closeEvent(self, event: QEvent) -> None:
         """
         Функция позволяет спросить пользователя, уверен ли он в том, что хочет закрыть окно
 
@@ -316,6 +316,15 @@ class Window(QMainWindow):
 
 
 def main() -> None:
+    """
+    Данная функция создает объект приложения
+    Parameters
+    ----------
+    self
+    Returns
+    -------
+    None
+    """
     app = QApplication(sys.argv)
     window = Window()
     sys.exit(app.exec_())
